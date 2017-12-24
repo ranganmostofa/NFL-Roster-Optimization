@@ -2,7 +2,7 @@ class Node:
     """
     General-purpose Node class for the BipartiteGraph module
     """
-    def __init__(self, name, attributes, outgoing_edges=list(), incoming_edges=list()):
+    def __init__(self, name, attributes, outgoing_edges=set(), incoming_edges=set()):
         """
         Constructor for the Node class - used to initialize all necessary fields of the Node object
         """
@@ -11,18 +11,18 @@ class Node:
         self.outgoing_edges = outgoing_edges
         self.incoming_edges = incoming_edges
 
-    def equals(self, node):
+    def __eq__(self, other):
         """
         Given a Node object, checks whether this node object is equal to the input node object - equality
         of two node objects is defined in terms of equality of inner fields and not as identical objects
         in memory
         """
         # check equality of names and attributes as well as that of the individual edge objects
-        return self.name == node.get_name() and self.attributes == node.get_attributes() and \
-               sum([self.outgoing_edges[index].equals(node.get_outgoing_edges()[index])
-                    for index in range(len(self.outgoing_edges))]) == len(self.outgoing_edges) and \
-               sum([self.incoming_edges[index].equals(node.get_incoming_edges()[index])
-                    for index in range(len(self.incoming_edges))]) == len(self.incoming_edges)
+        return \
+            self.name.__eq__(other.get_name()) and \
+            self.attributes.__eq__(other.get_attributes()) and \
+            self.get_outgoing_edges().__eq__(other.get_outgoing_edges()) and \
+            self.get_incoming_edges().__eq__(other.get_incoming_edges())
 
     def add_attribute(self, attribute_key, attribute_value):
         """
@@ -33,15 +33,15 @@ class Node:
 
     def add_outgoing_edge(self, outgoing_edge):
         """
-        Given an edge object as input, adds the edge to the existing list of outgoing edges
+        Given an edge object as input, adds the edge to the existing set of outgoing edges
         """
-        self.outgoing_edges.append(outgoing_edge)  # append the input edge to the list of outgoing edges
+        self.outgoing_edges.add(outgoing_edge)  # append the input edge to the set of outgoing edges
 
     def add_incoming_edge(self, incoming_edge):
         """
-        Given an edge object as input, adds the edge to the existing list of incoming edges
+        Given an edge object as input, adds the edge to the existing set of incoming edges
         """
-        self.incoming_edges.append(incoming_edge)  # append the input edge to the list of incoming edges
+        self.incoming_edges.add(incoming_edge)  # append the input edge to the set of incoming edges
 
     def remove_attribute(self, attribute_key):
         """
@@ -51,17 +51,17 @@ class Node:
 
     def remove_outgoing_edge(self, outgoing_edge):
         """
-        Given an edge object as input, removes the edge from the existing list of outgoing edges
+        Given an edge object as input, removes the edge from the existing set of outgoing edges
         """
-        # delete the input edge from the list of outgoing edges
-        self.set_outgoing_edges(list([edge for edge in self.outgoing_edges if not edge.equals(outgoing_edge)]))
+        # delete the input edge from the set of outgoing edges
+        self.set_outgoing_edges(set([edge for edge in self.outgoing_edges if not edge.__eq__(outgoing_edge)]))
 
     def remove_incoming_edge(self, incoming_edge):
         """
-        Given an edge object as input, removes the edge from the existing list of incoming edges
+        Given an edge object as input, removes the edge from the existing set of incoming edges
         """
-        # delete the input edge from the list of incoming edges
-        self.set_incoming_edges(list([edge for edge in self.incoming_edges if not edge.equals(incoming_edge)]))
+        # delete the input edge from the set of incoming edges
+        self.set_incoming_edges(set([edge for edge in self.incoming_edges if not edge.__eq__(incoming_edge)]))
 
     def get_name(self):
         """
@@ -83,15 +83,15 @@ class Node:
 
     def get_outgoing_edges(self):
         """
-        Returns the list of outgoing edges of the node
+        Returns the set of outgoing edges of the node
         """
-        return self.outgoing_edges  # return the list of outgoing edges
+        return self.outgoing_edges  # return the set of outgoing edges
 
     def get_incoming_edges(self):
         """
-        Returns the list of incoming edges of the node
+        Returns the set of incoming edges of the node
         """
-        return self.incoming_edges  # return the list of incoming edges
+        return self.incoming_edges  # return the set of incoming edges
 
     def set_name(self, name):
         """
@@ -114,13 +114,13 @@ class Node:
 
     def set_outgoing_edges(self, outgoing_edges):
         """
-        Given a list of outgoing edges, sets the input as the current list of outgoing edges
+        Given a set of outgoing edges, sets the input as the current set of outgoing edges
         """
-        self.outgoing_edges = outgoing_edges  # overwrite the existing list of outgoing edges with the input list
+        self.outgoing_edges = outgoing_edges  # overwrite the existing set of outgoing edges with the input set
 
     def set_incoming_edges(self, incoming_edges):
         """
-        Given a list of incoming edges, sets the input as the current list of incoming edges
+        Given a set of incoming edges, sets the input as the current set of incoming edges
         """
-        self.incoming_edges = incoming_edges  # overwrite the existing list of incoming edges with the input list
+        self.incoming_edges = incoming_edges  # overwrite the existing set of incoming edges with the input set
 
