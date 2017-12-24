@@ -11,6 +11,23 @@ class Edge:
         self.source_node = source_node
         self.terminal_node = terminal_node
 
+    def __str__(self):
+        """
+        Returns a neatly formatted string representation of the edge object
+        """
+        # string representation includes values of all inner fields
+        return \
+            "Edge Weight: " + str(self.weight) + "\n" + \
+            "Edge Attributes: " + str(self.attributes) + "\n" + \
+            "Source Node:" + str(self.source_node) + "\n" + \
+            "Terminal Node:" + str(self.terminal_node) + "\n"
+
+    def __hash__(self):
+        """
+        Returns the hashcode of the edge object
+        """
+        return hash(str(self))  # use the __str__ method to obtain the hashcode
+
     def __eq__(self, other):
         """
         Given an Edge object, checks whether this edge object is equal to the input edge object - equality

@@ -2,7 +2,7 @@ class Node:
     """
     General-purpose Node class for the BipartiteGraph module
     """
-    def __init__(self, name, attributes, outgoing_edges=set(), incoming_edges=set()):
+    def __init__(self, name, attributes, outgoing_edges, incoming_edges):
         """
         Constructor for the Node class - used to initialize all necessary fields of the Node object
         """
@@ -10,6 +10,23 @@ class Node:
         self.attributes = attributes
         self.outgoing_edges = outgoing_edges
         self.incoming_edges = incoming_edges
+
+    def __str__(self):
+        """
+        Returns a neatly formatted string representation of the node object
+        """
+        # string representation includes values of all inner fields
+        return \
+            "Node Name:" + str(self.name) + "\n" + \
+            "Node Attributes:" + str(self.attributes) + "\n" + \
+            "Outgoing Edges:" + str(self.outgoing_edges) + "\n" + \
+            "Incoming Edges:" + str(self.incoming_edges) + "\n"
+
+    def __hash__(self):
+        """
+        Returns the hashcode of the node object
+        """
+        return hash(str(self))  # use the __str__ method to obtain the hashcode
 
     def __eq__(self, other):
         """
