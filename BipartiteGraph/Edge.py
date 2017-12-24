@@ -13,28 +13,28 @@ class Edge:
 
     def __str__(self):
         """
-        Returns a neatly formatted string representation of the edge object
+        Returns a neatly formatted string representation of the Edge object
         """
         # string representation includes values of all inner fields
         return \
             "Edge Weight: " + str(self.weight) + "\n" + \
             "Edge Attributes: " + str(self.attributes) + "\n" + \
-            "Source Node:" + str(self.source_node) + "\n" + \
-            "Terminal Node:" + str(self.terminal_node) + "\n"
+            "Source Node: \n" + str(self.source_node) + "\n" + \
+            "Terminal Node: \n" + str(self.terminal_node) + "\n"
 
     def __hash__(self):
         """
-        Returns the hashcode of the edge object
+        Returns the hashcode of the Edge object
         """
         return hash(str(self))  # use the __str__ method to obtain the hashcode
 
     def __eq__(self, other):
         """
-        Given an Edge object, checks whether this edge object is equal to the input edge object - equality
-        of two edge objects is defined in terms of equality of inner fields and not as identical objects
+        Given an Edge object, checks whether this Edge object is equal to the input Edge object - equality
+        of two Edge objects is defined in terms of equality of inner fields and not as identical objects
         in memory
         """
-        # check equality of names and attributes as well as that of the individual source and terminal node objects
+        # check equality of names and attributes as well as that of the individual source and terminal Node objects
         return \
             self.weight == other.get_weight() and \
             self.attributes.__eq__(other.get_attributes()) and \
@@ -105,13 +105,13 @@ class Edge:
 
     def set_source_node(self, source_node):
         """
-        Given a source node object, sets the input as the current source node of the edge
+        Given a source Node object, sets the input as the current source node of the edge
         """
-        self.source_node = source_node  # overwrite the existing source node with the input source node object
+        self.source_node = source_node  # overwrite the existing source node with the input source Node object
 
     def set_terminal_node(self, terminal_node):
         """
-        Given a terminal node object, sets the input as the current terminal node of the edge
+        Given a terminal Node object, sets the input as the current terminal node of the edge
         """
-        self.terminal_node = terminal_node  # overwrite the existing terminal node with the input terminal node object
+        self.terminal_node = terminal_node  # overwrite the existing terminal node with the input terminal Node object
 

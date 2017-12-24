@@ -13,28 +13,28 @@ class Node:
 
     def __str__(self):
         """
-        Returns a neatly formatted string representation of the node object
+        Returns a neatly formatted string representation of the Node object
         """
         # string representation includes values of all inner fields
         return \
-            "Node Name:" + str(self.name) + "\n" + \
-            "Node Attributes:" + str(self.attributes) + "\n" + \
-            "Outgoing Edges:" + str(self.outgoing_edges) + "\n" + \
-            "Incoming Edges:" + str(self.incoming_edges) + "\n"
+            "Node Name: " + str(self.name) + "\n" + \
+            "Node Attributes: " + str(self.attributes) + "\n" + \
+            "Outgoing Edges: " + str(self.outgoing_edges) + "\n" + \
+            "Incoming Edges: " + str(self.incoming_edges) + "\n"
 
     def __hash__(self):
         """
-        Returns the hashcode of the node object
+        Returns the hashcode of the Node object
         """
         return hash(str(self))  # use the __str__ method to obtain the hashcode
 
     def __eq__(self, other):
         """
-        Given a Node object, checks whether this node object is equal to the input node object - equality
-        of two node objects is defined in terms of equality of inner fields and not as identical objects
+        Given a Node object, checks whether this Node object is equal to the input Node object - equality
+        of two Node objects is defined in terms of equality of inner fields and not as identical objects
         in memory
         """
-        # check equality of names and attributes as well as that of the individual edge objects
+        # check equality of names and attributes as well as that of the individual Edge objects
         return \
             self.name.__eq__(other.get_name()) and \
             self.attributes.__eq__(other.get_attributes()) and \
@@ -50,13 +50,13 @@ class Node:
 
     def add_outgoing_edge(self, outgoing_edge):
         """
-        Given an edge object as input, adds the edge to the existing set of outgoing edges
+        Given an Edge object as input, adds the edge to the existing set of outgoing edges
         """
         self.outgoing_edges.add(outgoing_edge)  # append the input edge to the set of outgoing edges
 
     def add_incoming_edge(self, incoming_edge):
         """
-        Given an edge object as input, adds the edge to the existing set of incoming edges
+        Given an Edge object as input, adds the edge to the existing set of incoming edges
         """
         self.incoming_edges.add(incoming_edge)  # append the input edge to the set of incoming edges
 
@@ -68,14 +68,14 @@ class Node:
 
     def remove_outgoing_edge(self, outgoing_edge):
         """
-        Given an edge object as input, removes the edge from the existing set of outgoing edges
+        Given an Edge object as input, removes the edge from the existing set of outgoing edges
         """
         # delete the input edge from the set of outgoing edges
         self.set_outgoing_edges(set([edge for edge in self.outgoing_edges if not edge.__eq__(outgoing_edge)]))
 
     def remove_incoming_edge(self, incoming_edge):
         """
-        Given an edge object as input, removes the edge from the existing set of incoming edges
+        Given an Edge object as input, removes the edge from the existing set of incoming edges
         """
         # delete the input edge from the set of incoming edges
         self.set_incoming_edges(set([edge for edge in self.incoming_edges if not edge.__eq__(incoming_edge)]))
