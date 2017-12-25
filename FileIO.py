@@ -39,7 +39,7 @@ class FileIO:
             csv_reader = csv.reader(csv_file, delimiter=",")
             for row in csv_reader:  # for every row in the csv file
                 # adds a list representing the row to the initialized matrix at the top
-                csv_matrix.append(list([float(elem) for elem in row]))
+                csv_matrix.append(list([str(elem) for elem in row]))
         return csv_matrix  # returns the matrix of data
 
     @staticmethod
