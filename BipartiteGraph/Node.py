@@ -5,6 +5,8 @@ class Node:
     def __init__(self, name, attributes, outgoing_edges, incoming_edges):
         """
         Constructor for the Node class - used to initialize all necessary fields of the Node object
+        NOTE: The name field must be unique across all nodes and the attributes dictionary must not
+        contain any object references
         """
         self.name = name  # initialize all necessary fields
         self.attributes = attributes

@@ -1,4 +1,6 @@
+from Node import Node
 from Edge import Edge
+from GraphProcessing import GraphProcessing
 
 
 class BipartiteGraph:
@@ -40,6 +42,60 @@ class BipartiteGraph:
         return \
             self.left_nodeset.__eq__(other.get_left_nodeset()) and \
             self.right_nodeset.__eq__(other.get_right_nodeset())
+
+    def __deepcopy__(self):
+        """
+        Creates and returns a deepcopy of the current BipartiteGraph object - all internal nodes
+        and edges and their respective internal fields are replicated without invoking an infinite
+        recursive call
+        """
+        # create a copy of the left nodeset - edges have not been created yet
+        left_nodeset = \
+            {
+                Node(node.get_name(), dict(node.get_attributes()), set(), set())
+                for node in self.left_nodeset
+            }
+
+        # create a copy of the right nodeset - edges have not been created yet
+        right_nodeset = \
+            {
+                Node(node.get_name(), dict(node.get_attributes()), set(), set())
+                for node in self.right_nodeset
+            }
+
+        # for every original source node
+        for original_source_node in self.left_nodeset.union(self.right_nodeset):
+            # access the corresponding copy source node using the unique name ID
+            copy_source_node = \
+                GraphProcessing.search_node_names(
+                    set(left_nodeset.union(right_nodeset)),
+                    original_source_node.get_name()
+                ).pop()
+
+            # for every original edge leading from the current original source node
+            for original_edge in original_source_node.get_outgoing_edges():
+                # access the corresponding copy terminal node using the unique name ID
+                copy_terminal_node = \
+                    GraphProcessing.search_node_names(
+                        set(left_nodeset.union(right_nodeset)),
+                        original_edge.get_terminal_node().get_name()
+                    ).pop()
+
+                # create the copy edge using the copy source and terminal nodes
+                copy_edge = \
+                    Edge(
+                        original_edge.get_weight(),
+                        dict(original_edge.get_attributes()),
+                        copy_source_node,
+                        copy_terminal_node
+                    )
+
+                # add the edge to the copy source and terminal nodes
+                copy_source_node.add_outgoing_edge(copy_edge)
+                copy_terminal_node.add_incoming_edge(copy_edge)
+
+        # finally, return the deepcopy version of the current BipartiteGraph object
+        return BipartiteGraph(left_nodeset, right_nodeset)
 
     def add_left_node(self, node):
         """
