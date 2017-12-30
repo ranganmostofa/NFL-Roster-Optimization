@@ -1,7 +1,11 @@
+from Node import Node
+
+
 class GraphProcessing:
     """
     Class that houses static methods related to various graph processing algorithms
     """
+
     @staticmethod
     def has_attribute_key(graph_element, attribute_key):
         """
@@ -40,7 +44,38 @@ class GraphProcessing:
         # return the filtered set of nodes
         return \
             {
-                node for node in nodeset
+                node for node in set(nodeset)
                 if node.get_name().__eq__(target_name)
             }
+
+    @staticmethod
+    def produce_duplicate_disconnected_node(node):
+        """
+        Given a Node object, returns a disconnected duplicate of the input node
+        """
+        # retain the original name and attributes, but clear all outgoing and incoming edges
+        return \
+            Node(
+                node.get_name(),
+                dict(node.get_attributes()),
+                set(),
+                set()
+            )
+
+    @staticmethod
+    def bipartite_to_dictionary_form(G):
+        """
+        Given a BipartiteGraph object, returns an adjacency matrix representation of the input graph using
+        doubly nested dictionaries
+        """
+        G_dict = dict()  # initialize the adjacency matrix
+        for source_node in G.get_left_nodeset().union(G.get_right_nodeset()):  # for every source node
+            G_dict[source_node.get_name()] = dict()  # initialize the inner dictionary
+            for outgoing_edge in source_node.get_outgoing_edges():  # for every outgoing edge
+                terminal_node = outgoing_edge.get_terminal_node()  # obtain the terminal node
+                # check the existence of multiple edges and raise an assertion error accordingly
+                assert terminal_node.get_name() not in G_dict[source_node.get_name()].keys()
+                # add the edge, including the edge weight
+                G_dict[source_node.get_name()][terminal_node.get_name()] = outgoing_edge.get_weight()
+        return G_dict  # return the populated adjacency matrix representation
 

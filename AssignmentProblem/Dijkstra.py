@@ -4,7 +4,13 @@ from collections import deque
 class Dijkstra:
     """
     Class of different implementations of Dijkstra's algorithm
+
+    NOTE: Unlike the rest of the modules in this package, the Dijkstra module is unable to handle
+          BipartiteGraph objects. Instead, it operates on graphs represented in dictionary form.
+          Use GraphProcessing.bipartite_to_dictionary_form() to convert the BipartiteGraph object
+          to dictionary representation before calling this module
     """
+
     @staticmethod
     def one_to_one(graph, source_node, terminal_node):
         """

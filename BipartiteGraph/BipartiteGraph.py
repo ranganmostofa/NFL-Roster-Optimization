@@ -1,4 +1,3 @@
-from Node import Node
 from Edge import Edge
 from GraphProcessing import GraphProcessing
 
@@ -49,53 +48,29 @@ class BipartiteGraph:
         and edges and their respective internal fields are replicated without invoking an infinite
         recursive call
         """
-        # create a copy of the left nodeset - edges have not been created yet
-        left_nodeset = \
-            {
-                Node(node.get_name(), dict(node.get_attributes()), set(), set())
-                for node in self.left_nodeset
-            }
+        return BipartiteGraph.extract_edge_induced_subgraph(self, lambda edge: True)  # copy all edges
 
-        # create a copy of the right nodeset - edges have not been created yet
-        right_nodeset = \
-            {
-                Node(node.get_name(), dict(node.get_attributes()), set(), set())
-                for node in self.right_nodeset
-            }
+    def add_node_attributes(self, attribute_key, attribute_value):
+        """
+        Given an attribute key and the corresponding attribute value, adds the key-value pair to the
+        attributes registry of each of the nodes in the left and right nodesets of the graph
+        """
+        G_prime = self.__deepcopy__()  # create a deepcopy of the bipartite graph
+        for node in G_prime.get_left_nodeset().union(G_prime.get_right_nodeset()):  # for every node in the graph
+            # add the attribute key-value pair to the attributes registry of the node
+            node.add_attribute(attribute_key, attribute_value)
+        return G_prime  # return the modified graph
 
-        # for every original source node
-        for original_source_node in self.left_nodeset.union(self.right_nodeset):
-            # access the corresponding copy source node using the unique name ID
-            copy_source_node = \
-                GraphProcessing.search_node_names(
-                    set(left_nodeset.union(right_nodeset)),
-                    original_source_node.get_name()
-                ).pop()
-
-            # for every original edge leading from the current original source node
-            for original_edge in original_source_node.get_outgoing_edges():
-                # access the corresponding copy terminal node using the unique name ID
-                copy_terminal_node = \
-                    GraphProcessing.search_node_names(
-                        set(left_nodeset.union(right_nodeset)),
-                        original_edge.get_terminal_node().get_name()
-                    ).pop()
-
-                # create the copy edge using the copy source and terminal nodes
-                copy_edge = \
-                    Edge(
-                        original_edge.get_weight(),
-                        dict(original_edge.get_attributes()),
-                        copy_source_node,
-                        copy_terminal_node
-                    )
-
-                # add the edge to the copy source and terminal nodes
-                copy_source_node.add_outgoing_edge(copy_edge)
-                copy_terminal_node.add_incoming_edge(copy_edge)
-
-        # finally, return the deepcopy version of the current BipartiteGraph object
-        return BipartiteGraph(left_nodeset, right_nodeset)
+    def add_edge_attributes(self, attribute_key, attribute_value):
+        """
+        Given an attribute key and the corresponding attribute value, adds the key-value pair to the
+        attributes registry of each of the edges in the graph
+        """
+        G_prime = self.__deepcopy__()  # create a deepcopy of the bipartite graph
+        for edge in G_prime.get_edges():  # for every edge in the graph
+            # add the attribute key-value pair to the attributes registry of the edge
+            edge.add_attribute(attribute_key, attribute_value)
+        return G_prime  # return the modified graph
 
     def add_left_node(self, node):
         """
@@ -132,13 +107,13 @@ class BipartiteGraph:
         """
         Returns the left nodeset of the bipartite graph
         """
-        return self.left_nodeset  # return the left nodeset
+        return set(self.left_nodeset)  # return the left nodeset
 
     def get_right_nodeset(self):
         """
         Returns the right nodeset of the bipartite graph
         """
-        return self.right_nodeset  # return the right nodeset
+        return set(self.right_nodeset)  # return the right nodeset
 
     def get_edges(self):
         """
@@ -153,7 +128,7 @@ class BipartiteGraph:
         """
         Given a set of nodes, sets the input as the current left nodeset
         """
-        self.left_nodeset = left_nodeset  # overwrite the existing left nodeset with the input left nodeset
+        self.left_nodeset = set(left_nodeset)  # overwrite the existing left nodeset with the input left nodeset
 
         self.__check_validity()  # check if graph is bipartite - throws exception if not
 
@@ -161,9 +136,60 @@ class BipartiteGraph:
         """
         Given a set of nodes, sets the input as the current right nodeset
         """
-        self.right_nodeset = right_nodeset  # overwrite the existing right nodeset with the input right nodeset
+        self.right_nodeset = set(right_nodeset)  # overwrite the existing right nodeset with the input right nodeset
 
         self.__check_validity()  # check if graph is bipartite - throws exception if not
+
+    @staticmethod
+    def extract_edge_induced_subgraph(G, predicate):
+        """
+        Given a BipartiteGraph object and a predicate that accepts Edge objects as inputs, returns the
+        edge-induced subgraph of the input graph based on the set of edges filtered by the input predicate.
+
+        NOTE: An edge-induced subgraph is defined here as a graph with a set of nodes exactly identical to
+              the original set but with the filtered set of edges. As a result, the subgraph may contain
+              disconnected nodes. However, as an added bonus of using this convention, this method may also
+              be used to efficiently produce deep copies of an existing graph
+        """
+        # initialize the new left and right nodesets as sets containing disconnected copies of the original nodes
+        left_nodeset, right_nodeset = \
+            {GraphProcessing.produce_duplicate_disconnected_node(node) for node in G.get_left_nodeset()}, \
+            {GraphProcessing.produce_duplicate_disconnected_node(node) for node in G.get_right_nodeset()}
+
+        # for every original source node
+        for original_source_node in G.get_left_nodeset().union(G.get_right_nodeset()):
+            # access the corresponding copy source node using the unique name ID
+            copy_source_node = \
+                GraphProcessing.search_node_names(
+                    set(left_nodeset.union(right_nodeset)),
+                    original_source_node.get_name()
+                ).pop()
+
+            # for every original edge leading from the current original source node
+            for original_edge in original_source_node.get_outgoing_edges():
+                if predicate(original_edge.get_weight()):
+                    # access the corresponding copy terminal node using the unique name ID
+                    copy_terminal_node = \
+                        GraphProcessing.search_node_names(
+                            set(left_nodeset.union(right_nodeset)),
+                            original_edge.get_terminal_node().get_name()
+                        ).pop()
+
+                    # create the copy edge using the copy source and terminal nodes
+                    copy_edge = \
+                        Edge(
+                            original_edge.get_weight(),
+                            dict(original_edge.get_attributes()),
+                            copy_source_node,
+                            copy_terminal_node
+                        )
+
+                    # add the edge to the copy source and terminal nodes
+                    copy_source_node.add_outgoing_edge(copy_edge)
+                    copy_terminal_node.add_incoming_edge(copy_edge)
+
+        # finally, return the deepcopy version of the current BipartiteGraph object
+        return BipartiteGraph(left_nodeset, right_nodeset)
 
     def __is_bipartite(self):
         """
@@ -197,10 +223,26 @@ class BipartiteGraph:
 
         return True  # if all the tests above have passed, the graph must be bipartite
 
+    def __has_conflicting_node_names(self):
+        """
+        Returns True if the graph nodes have conflicting names and False otherwise
+        """
+        # check length of sets to determine if overlap exists
+        return \
+            len({node.get_name() for node in self.get_left_nodeset().union(self.get_right_nodeset())}) \
+            != len(self.get_left_nodeset()) + len(self.get_right_nodeset())
+
     def __check_validity(self):
         """
-        Throws an exception if the graph is not bipartite - called after every mutation
+        Throws an exception if:
+
+        (1) Graph is not bipartite
+        (2) Nodes have conflicting names
+
+        Method is called after every mutation
         """
         if not self.__is_bipartite():  # if the graph is not bipartite
             raise Exception("Error: Graph is not bipartite")  # raise an exception
+        if self.__has_conflicting_node_names():  # if the graph has nodes with conflicting node names
+            raise Exception("Error: Nodes have conflicting names")  # raise an exception
 

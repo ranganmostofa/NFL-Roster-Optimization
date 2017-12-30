@@ -1,6 +1,8 @@
 class Edge:
     """
     General-purpose Edge class for the BipartiteGraph module
+
+    NOTE: Multiple edges are not supported. As such, source and terminal node names uniquely identify an edge
     """
     def __init__(self, weight, attributes, source_node, terminal_node):
         """
@@ -64,7 +66,7 @@ class Edge:
         """
         Returns the attributes of the edge
         """
-        return self.attributes  # return the attributes
+        return dict(self.attributes)  # return the attributes
 
     def get_attribute_value(self, attribute_key):
         """
@@ -94,7 +96,7 @@ class Edge:
         """
         Given a registry of attributes, sets the input as the registry of current attributes of the edge
         """
-        self.attributes = attributes  # overwrite the existing registry of attributes with the input attributes
+        self.attributes = dict(attributes)  # overwrite the existing registry of attributes with the input attributes
 
     def set_attribute_value(self, attribute_key, attribute_value):
         """
