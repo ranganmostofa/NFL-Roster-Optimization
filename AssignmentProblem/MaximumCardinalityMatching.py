@@ -1,6 +1,6 @@
 from Dijkstra import Dijkstra
 from Preprocessing import Preprocessing
-from BipartiteGraph import BipartiteGraph, GraphProcessing
+from BipartiteGraph import GraphProcessing
 
 
 class MaximumCardinalityMatching:
