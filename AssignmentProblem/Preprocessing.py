@@ -1,4 +1,6 @@
-from BipartiteGraph import GraphProcessing
+import random
+from sys import maxsize
+from BipartiteGraph import Node, BipartiteGraph, GraphProcessing
 
 
 class Preprocessing:
@@ -6,6 +8,64 @@ class Preprocessing:
     Class that houses static preprocessing methods essential to and shared by the different algorithms
     implemented in this package
     """
+
+    DUMMY_EDGE_WEIGHT = 0
+    DUMMY_NODE_NAME = "Dummy Node"
+
+    @staticmethod
+    def construct_balanced_equivalent(G):
+        """
+        Given a BipartiteGraph object, balances the left and right nodesets, i.e. creates dummy nodes and
+        edges to ensure the cardinality of the left and right nodesets are equal
+        """
+        G_prime = G.__deepcopy__()  # create a deep copy of the input graph
+
+        # determine which nodeset is complete and which is deficient
+        if len(G_prime.get_left_nodeset()) > len(G_prime.get_right_nodeset()):
+            complete_nodeset, deficient_nodeset = G_prime.get_left_nodeset(), G_prime.get_right_nodeset()
+        else:
+            complete_nodeset, deficient_nodeset = G_prime.get_right_nodeset(), G_prime.get_left_nodeset()
+
+        left_deficiency = len(deficient_nodeset) == len(G_prime.get_left_nodeset())
+
+        while not G_prime.is_balanced():  # while the graph is not balanced
+            dummy_node = \
+                Node(
+                    Preprocessing.DUMMY_NODE_NAME + " " + str(random.randint(0, maxsize)),
+                    dict(),
+                    set(),
+                    set()
+                )  # create a dummy node
+
+            for node in complete_nodeset:  # for every node in the complete nodeset
+                # add the dummy node to the graph and add a dummy edge connecting the dummy node and the node
+                # in the complete nodeset
+                if left_deficiency: G_prime.add_edge(Preprocessing.DUMMY_EDGE_WEIGHT, dict(), dummy_node, node)
+                else: G_prime.add_edge(Preprocessing.DUMMY_EDGE_WEIGHT, dict(), node, dummy_node)
+
+        return G_prime  # return the balanced graph
+
+    @staticmethod
+    def remove_disconnected_nodes(G):
+        """
+        Given a BipartiteGraph object, returns a graph similar to the input graph but lacking the
+        disconnected nodes
+        """
+        left_nodeset = \
+            {
+                node
+                for node in G.get_left_nodeset()
+                if len(node.get_outgoing_edges().union(node.get_incoming_edges()))
+            }  # create a new left nodeset by filtering out the disconnected nodes
+
+        right_nodeset = \
+            {
+                node
+                for node in G.get_right_nodeset()
+                if len(node.get_outgoing_edges().union(node.get_incoming_edges()))
+            }  # create a new right nodeset by filtering out the disconnected nodes
+
+        return BipartiteGraph(left_nodeset, right_nodeset)  # return the modified graph
 
     @staticmethod
     def modify_graph(G, matching, update_func):

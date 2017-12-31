@@ -3,7 +3,7 @@ from BipartiteGraph import GraphProcessing
 
 class DepthFirstTraversal:
     """
-    Class that houses implementation of the depth-first search algorithm
+    Class that houses implementation of the depth-first search algorithm (O(m + n) runtime complexity)
     """
 
     VISITED_ATTRIBUTE = "Visited"  # initialize global variables

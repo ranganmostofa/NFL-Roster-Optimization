@@ -5,7 +5,7 @@ from BipartiteGraph import GraphProcessing
 
 class MaximumCardinalityMatching:
     """
-    Class containing implementation of the maximum cardinality matching algorithm
+    Class containing implementation of the maximum cardinality matching algorithm (O(n^3) runtime complexity)
     """
 
     # initialize global variables
@@ -17,13 +17,13 @@ class MaximumCardinalityMatching:
     SOURCE_NODE, SINK_NODE = "Source Node", "Sink Node"
 
     @staticmethod
-    def apply(G):
+    def apply(G, initial_matching):
         """
-        Given a BipartiteGraph object, computes and returns a maximum cardinality matching for the input
-        graph, represented as a set of pairs where each pair consists of source node and terminal node
-        names in that order
+        Given a BipartiteGraph object and an initial matching, computes and returns a maximum cardinality
+        matching for the input graph, represented as a set of pairs where each pair consists of source
+        node and terminal node names in that order
         """
-        matching = set()  # start off with an empty matching
+        current_matching = initial_matching  # start off with an empty matching
         # operate on a duplicate graph
         G_prime = G\
             .add_node_attributes(MaximumCardinalityMatching.MATCHING_ATTRIBUTE, False)\
@@ -34,7 +34,7 @@ class MaximumCardinalityMatching:
                 MaximumCardinalityMatching.__postprocess_augmenting_path(
                     MaximumCardinalityMatching.compute_augmenting_path(
                         G_prime,
-                        matching
+                        current_matching
                     )
                 )  # compute an augmenting path - the shortest, since Dijkstra's is being used
 
@@ -42,15 +42,15 @@ class MaximumCardinalityMatching:
                 break
 
             # compute the symmetric difference between the current matching and the augmenting path
-            matching = matching.symmetric_difference(set(augmenting_path))
+            current_matching = current_matching.symmetric_difference(set(augmenting_path))
             G_prime = \
                 Preprocessing.modify_graph(
                     G_prime,
-                    matching,
+                    current_matching,
                     MaximumCardinalityMatching.__update_matched_attributes
                 )  # update the attributes of matched nodes and edges based on new matching
 
-        return matching  # return the matching
+        return current_matching  # return the matching
 
     @staticmethod
     def compute_augmenting_path(G, matching):
@@ -66,7 +66,7 @@ class MaximumCardinalityMatching:
             )  # reverse the direction of the edges included in the matching
 
         # modify all edge weights to be identical
-        # allows for a shortest path to be computed based on edge cardinality instead of edge weights
+        # allows for a shortest path to be computed based on cardinality
         for edge in G_prime.get_edges(): edge.set_weight(MaximumCardinalityMatching.DUMMY_EDGE_WEIGHT)
 
         G_prime_dict = \

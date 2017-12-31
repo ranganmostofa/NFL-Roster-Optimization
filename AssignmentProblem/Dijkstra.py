@@ -3,7 +3,7 @@ from collections import deque
 
 class Dijkstra:
     """
-    Class of different implementations of Dijkstra's algorithm
+    Class of different implementations of Dijkstra's algorithm (O(n^2) runtime complexity)
 
     NOTE: Unlike the rest of the modules in this package, the Dijkstra module is unable to handle
           BipartiteGraph objects. Instead, it operates on graphs represented in dictionary form.

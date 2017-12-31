@@ -93,10 +93,14 @@ class BipartiteGraph:
         Given the necessary inner fields of an Edge object, creates the Edge object and connects the
         source and terminal nodes using this edge
         """
-        if source_node not in self.left_nodeset:  # if the source node is not in the left nodeset
+        # if the source node is not in the left nodeset
+        if source_node.get_name() not in self.get_left_node_names():
             self.add_left_node(source_node)  # add the source node
-        if terminal_node not in self.right_nodeset:  # if the terminal node is not in the right nodeset
+
+        # if the terminal node is not in the right nodeset
+        if terminal_node.get_name() not in self.get_right_node_names():
             self.add_right_node(terminal_node)  # add the terminal node
+
         edge = Edge(weight, attributes, source_node, terminal_node)  # create the Edge object
         source_node.add_outgoing_edge(edge)  # connect the source node and the terminal node using the edge
         terminal_node.add_incoming_edge(edge)
@@ -109,11 +113,23 @@ class BipartiteGraph:
         """
         return set(self.left_nodeset)  # return the left nodeset
 
+    def get_left_node_names(self):
+        """
+        Returns a set of names belonging to the nodes in the left nodeset of the bipartite graph
+        """
+        return set({node.get_name() for node in self.get_left_nodeset()})  # return the set of names
+
     def get_right_nodeset(self):
         """
         Returns the right nodeset of the bipartite graph
         """
         return set(self.right_nodeset)  # return the right nodeset
+
+    def get_right_node_names(self):
+        """
+        Returns a set of names belonging to the nodes in the right nodeset of the bipartite graph
+        """
+        return set({node.get_name() for node in self.get_right_nodeset()})  # return the set of names
 
     def get_edges(self):
         """
@@ -148,8 +164,8 @@ class BipartiteGraph:
 
         NOTE: An edge-induced subgraph is defined here as a graph with a set of nodes exactly identical to
               the original set but with the filtered set of edges. As a result, the subgraph may contain
-              disconnected nodes. However, as an added bonus of using this convention, this method may also
-              be used to efficiently produce deep copies of an existing graph
+              disconnected nodes. However, as an added bonus of using this convention, this method may
+              also be used to efficiently produce deep copies of an existing graph
         """
         # initialize the new left and right nodesets as sets containing disconnected copies of the original nodes
         left_nodeset, right_nodeset = \
@@ -167,7 +183,7 @@ class BipartiteGraph:
 
             # for every original edge leading from the current original source node
             for original_edge in original_source_node.get_outgoing_edges():
-                if predicate(original_edge.get_weight()):
+                if predicate(original_edge):
                     # access the corresponding copy terminal node using the unique name ID
                     copy_terminal_node = \
                         GraphProcessing.search_node_names(
@@ -190,6 +206,14 @@ class BipartiteGraph:
 
         # finally, return the deepcopy version of the current BipartiteGraph object
         return BipartiteGraph(left_nodeset, right_nodeset)
+
+    def is_balanced(self):
+        """
+        Returns True if the bipartite graph is balanced i.e. the cardinality of the left nodeset is equal
+        to that of the right nodeset and False otherwise
+        """
+        # return if the left and right nodesets are of equal size
+        return len(self.left_nodeset) == len(self.right_nodeset)
 
     def __is_bipartite(self):
         """

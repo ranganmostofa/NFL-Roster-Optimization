@@ -5,7 +5,7 @@ from DepthFirstTraversal import DepthFirstTraversal
 class MinimumVertexCover:
     """
     Class containing implementation of algorithm which utilizes Konig's Theorem to determine a solution
-    to the minimum vertex cover problem
+    to the minimum vertex cover problem (O(n^3) runtime complexity)
     """
 
     @staticmethod
