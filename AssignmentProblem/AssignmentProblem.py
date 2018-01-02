@@ -3,14 +3,42 @@ from sys import maxsize
 from BipartiteGraph import Node, BipartiteGraph, GraphProcessing
 
 
-class Preprocessing:
+class AssignmentProblem:
     """
-    Class that houses static preprocessing methods essential to and shared by the different algorithms
-    implemented in this package
+    Class that houses static methods essential to and shared by the different algorithms implemented in
+    this package
     """
 
-    DUMMY_EDGE_WEIGHT = 0
+    DUMMY_EDGE_WEIGHT = 0  # initialize global variables
+
     DUMMY_NODE_NAME = "Dummy Node"
+
+    MATCHING_ATTRIBUTE = "Matched"
+
+    @staticmethod
+    def is_perfect(G, maximum_matching):
+        """
+        Given a BipartiteGraph object and a maximum matching represented as a set of pairs of node names,
+        returns True if the input matching is perfect
+        """
+        G_prime = \
+            BipartiteGraph.extract_edge_induced_subgraph(
+                G,
+                lambda edge: tuple((edge.get_source_node().get_name(),
+                                    edge.get_terminal_node().get_name())) in maximum_matching
+            )  # extract the edge-induced subgraph based on the matched edges only
+
+        # determine whether every vertex of the graph is incident to exactly one edge of the matching
+        return \
+            sum(
+                [
+                    True if len(node.get_outgoing_edges().union(node.get_incoming_edges())) == 1
+                    else False
+                    for node in G_prime.get_left_nodeset().union(G_prime.get_right_nodeset())
+                ]  # number of nodes with a single incident edge...
+            ) == len(
+                G_prime.get_left_nodeset().union(G_prime.get_right_nodeset())
+            )  # ...should equal the total number of nodes
 
     @staticmethod
     def construct_balanced_equivalent(G):
@@ -31,7 +59,7 @@ class Preprocessing:
         while not G_prime.is_balanced():  # while the graph is not balanced
             dummy_node = \
                 Node(
-                    Preprocessing.DUMMY_NODE_NAME + " " + str(random.randint(0, maxsize)),
+                    AssignmentProblem.DUMMY_NODE_NAME + " " + str(random.randint(0, maxsize)),
                     dict(),
                     set(),
                     set()
@@ -40,8 +68,8 @@ class Preprocessing:
             for node in complete_nodeset:  # for every node in the complete nodeset
                 # add the dummy node to the graph and add a dummy edge connecting the dummy node and the node
                 # in the complete nodeset
-                if left_deficiency: G_prime.add_edge(Preprocessing.DUMMY_EDGE_WEIGHT, dict(), dummy_node, node)
-                else: G_prime.add_edge(Preprocessing.DUMMY_EDGE_WEIGHT, dict(), node, dummy_node)
+                if left_deficiency: G_prime.add_edge(AssignmentProblem.DUMMY_EDGE_WEIGHT, dict(), dummy_node, node)
+                else: G_prime.add_edge(AssignmentProblem.DUMMY_EDGE_WEIGHT, dict(), node, dummy_node)
 
         return G_prime  # return the balanced graph
 
@@ -101,4 +129,61 @@ class Preprocessing:
         # reverse the direction in the edge object
         matched_edge.set_source_node(terminal_node)
         matched_edge.set_terminal_node(source_node)
+
+    @staticmethod
+    def update_matched_attributes(source_node, terminal_node, edge):
+        """
+        Given a source node, a terminal node and the edge connecting them, sets the matching attribute
+        of all three graph elements to True
+        """
+        # set the matching attribute to true
+        source_node.set_attribute_value(AssignmentProblem.MATCHING_ATTRIBUTE, True)
+        terminal_node.set_attribute_value(AssignmentProblem.MATCHING_ATTRIBUTE, True)
+        edge.set_attribute_value(AssignmentProblem.MATCHING_ATTRIBUTE, True)
+
+    @staticmethod
+    def postprocess_augmenting_path(augmenting_path):
+        """
+        Given an augmenting path represented as a tuple of pairs where each pair consists of source node
+        and terminal node names in that order, undoes the reversal of every odd-indexed edge executed prior
+        to computing the augmenting path
+        """
+        return \
+            tuple(
+                (
+                    tuple(
+                        (
+                            terminal_node,
+                            source_node
+                        )  # undo the reversal if the index is odd
+                    ) if list(augmenting_path).index(tuple((source_node, terminal_node))) % 2
+
+                    else tuple(
+                        (
+                            source_node,
+                            terminal_node
+                        )  # maintain original orientation otherwise
+                    )
+
+                    # continue for every pair of source and terminal nodes
+                    for source_node, terminal_node in augmenting_path
+                )
+            )
+
+    @staticmethod
+    def postprocess_maximum_matching(maximum_matching):
+        """
+        Given a maximum matching, represented by a set of pairs of node names, removes edges originating
+        from or leading to dummy nodes that were introduced in the preprocessing phase to balance the
+        bipartite graph
+        """
+        return \
+            set(
+                {
+                    tuple((source_node_name, terminal_node_name))  # add an edge/pair
+                    for source_node_name, terminal_node_name in maximum_matching
+                    if AssignmentProblem.DUMMY_NODE_NAME not in source_node_name and
+                       AssignmentProblem.DUMMY_NODE_NAME not in terminal_node_name  # with no dummy nodes
+                }
+            )  # return the filtered set
 

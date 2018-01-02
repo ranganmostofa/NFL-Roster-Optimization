@@ -1,5 +1,5 @@
-from Preprocessing import Preprocessing
 from BipartiteGraph import BipartiteGraph
+from AssignmentProblem import AssignmentProblem
 from MinimumVertexCover import MinimumVertexCover
 from MaximumCardinalityMatching import MaximumCardinalityMatching
 
@@ -19,8 +19,8 @@ class KuhnMunkres:
         """
         G_prime = \
             KuhnMunkres.__preprocess_weights(  # preprocess the edge weights
-                Preprocessing.construct_balanced_equivalent(  # balance the left and right nodesets
-                    Preprocessing.remove_disconnected_nodes(G)  # remove disconnected nodes
+                AssignmentProblem.construct_balanced_equivalent(  # balance the left and right nodesets
+                    AssignmentProblem.remove_disconnected_nodes(G)  # remove disconnected nodes
                 )
             )
 
@@ -32,7 +32,7 @@ class KuhnMunkres:
             # NOTE: The maximum matching from the previous iteration is used as the starting point every time
             #       to reduce the runtime complexity from O(n^5) to O(n^4)
             maximum_matching = set(MaximumCardinalityMatching.apply(G0_subgraph, maximum_matching))
-            if KuhnMunkres.is_perfect(G_prime, maximum_matching):  # if the maximum matching is perfect
+            if AssignmentProblem.is_perfect(G_prime, maximum_matching):  # if the maximum matching is perfect
                 break  # terminate the infinite loop
             # otherwise compute the minimum vertex cover for the subgraph induced by the zero-weight edges
             minimum_vertex_cover = set(MinimumVertexCover.apply(G0_subgraph, maximum_matching))
@@ -40,7 +40,7 @@ class KuhnMunkres:
             G_prime = KuhnMunkres.__adjust_weights(G_prime, minimum_vertex_cover)
 
         # apply postprocessing techniques and return the final maximum matching
-        return KuhnMunkres.__postprocess_maximum_matching(maximum_matching)
+        return AssignmentProblem.postprocess_maximum_matching(maximum_matching)
 
     @staticmethod
     def __preprocess_weights(G):
@@ -88,31 +88,6 @@ class KuhnMunkres:
         return BipartiteGraph.extract_edge_induced_subgraph(G, lambda edge: edge.get_weight() == 0)
 
     @staticmethod
-    def is_perfect(G, maximum_matching):
-        """
-        Given a BipartiteGraph object and a maximum matching represented as a set of pairs of node names,
-        returns True if the input matching is perfect
-        """
-        G_prime = \
-            BipartiteGraph.extract_edge_induced_subgraph(
-                G,
-                lambda edge: tuple((edge.get_source_node().get_name(),
-                                    edge.get_terminal_node().get_name())) in maximum_matching
-            )  # extract the edge-induced subgraph based on the matched edges only
-
-        # determine whether every vertex of the graph is incident to exactly one edge of the matching
-        return \
-            sum(
-                [
-                    True if len(node.get_outgoing_edges().union(node.get_incoming_edges())) == 1
-                    else False
-                    for node in G_prime.get_left_nodeset().union(G_prime.get_right_nodeset())
-                ]  # number of nodes with a single incident edge...
-            ) == len(
-                G_prime.get_left_nodeset().union(G_prime.get_right_nodeset())
-            )  # ...should equal the total number of nodes
-
-    @staticmethod
     def __adjust_weights(G, minimum_vertex_cover):
         """
         Given a BipartiteGraph object and a minimum vertex cover represented as a set of node names,
@@ -144,21 +119,4 @@ class KuhnMunkres:
                 edge.set_weight(edge.get_weight() - delta)  # subtract delta from the edge weight
 
         return G_prime  # return the modified graph
-
-    @staticmethod
-    def __postprocess_maximum_matching(maximum_matching):
-        """
-        Given a maximum matching, represented by a set of pairs of node names, removes edges originating
-        from or leading to dummy nodes that were introduced in the preprocessing phase to balance the
-        bipartite graph
-        """
-        return \
-            set(
-                {
-                    tuple((source_node_name, terminal_node_name))  # add an edge/pair
-                    for source_node_name, terminal_node_name in maximum_matching
-                    if Preprocessing.DUMMY_NODE_NAME not in source_node_name and
-                       Preprocessing.DUMMY_NODE_NAME not in terminal_node_name  # with no dummy nodes
-                }
-            )  # return the filtered set
 

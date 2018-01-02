@@ -1,6 +1,6 @@
 from Dijkstra import Dijkstra
-from Preprocessing import Preprocessing
 from BipartiteGraph import GraphProcessing
+from AssignmentProblem import AssignmentProblem
 
 
 class MaximumCardinalityMatching:
@@ -9,10 +9,6 @@ class MaximumCardinalityMatching:
     """
 
     # initialize global variables
-
-    DUMMY_EDGE_WEIGHT = 0
-
-    MATCHING_ATTRIBUTE = "Matched"
 
     SOURCE_NODE, SINK_NODE = "Source Node", "Sink Node"
 
@@ -26,12 +22,12 @@ class MaximumCardinalityMatching:
         current_matching = initial_matching  # start off with an empty matching
         # operate on a duplicate graph
         G_prime = G\
-            .add_node_attributes(MaximumCardinalityMatching.MATCHING_ATTRIBUTE, False)\
-            .add_edge_attributes(MaximumCardinalityMatching.MATCHING_ATTRIBUTE, False)
+            .add_node_attributes(AssignmentProblem.MATCHING_ATTRIBUTE, False)\
+            .add_edge_attributes(AssignmentProblem.MATCHING_ATTRIBUTE, False)
 
         while True:  # enter an infinite loop that terminates only when no augmenting paths exist
             augmenting_path = \
-                MaximumCardinalityMatching.__postprocess_augmenting_path(
+                AssignmentProblem.postprocess_augmenting_path(
                     MaximumCardinalityMatching.compute_augmenting_path(
                         G_prime,
                         current_matching
@@ -44,10 +40,10 @@ class MaximumCardinalityMatching:
             # compute the symmetric difference between the current matching and the augmenting path
             current_matching = current_matching.symmetric_difference(set(augmenting_path))
             G_prime = \
-                Preprocessing.modify_graph(
+                AssignmentProblem.modify_graph(
                     G_prime,
                     current_matching,
-                    MaximumCardinalityMatching.__update_matched_attributes
+                    AssignmentProblem.update_matched_attributes
                 )  # update the attributes of matched nodes and edges based on new matching
 
         return current_matching  # return the matching
@@ -59,15 +55,15 @@ class MaximumCardinalityMatching:
         shortest available augmenting path if one exists
         """
         G_prime = \
-            Preprocessing.modify_graph(
+            AssignmentProblem.modify_graph(
                 G,
                 matching,
-                Preprocessing.reverse_matched_directed_edge
+                AssignmentProblem.reverse_matched_directed_edge
             )  # reverse the direction of the edges included in the matching
 
         # modify all edge weights to be identical
-        # allows for a shortest path to be computed based on cardinality
-        for edge in G_prime.get_edges(): edge.set_weight(MaximumCardinalityMatching.DUMMY_EDGE_WEIGHT)
+        # allows for a shortest path to be computed based on edge cardinality
+        for edge in G_prime.get_edges(): edge.set_weight(AssignmentProblem.DUMMY_EDGE_WEIGHT)
 
         G_prime_dict = \
             MaximumCardinalityMatching.__add_source_sink_nodes(
@@ -104,8 +100,8 @@ class MaximumCardinalityMatching:
 
         (1) Converts the graph object to dictionary form
         (2) Adds a source and sink node to the graph
-        (3) Connects the source node to every unmatched node in the left nodeset
-        (4) Connects every unmatched node in the right nodeset to the sink node
+        (3) Connects the source node to every exposed node in the left nodeset
+        (4) Connects every exposed node in the right nodeset to the sink node
         """
         G_dict = GraphProcessing.bipartite_to_dictionary_form(G)  # convert to dictionary form
 
@@ -116,64 +112,24 @@ class MaximumCardinalityMatching:
         # add the source and sink nodes
         G_dict[MaximumCardinalityMatching.SOURCE_NODE], G_dict[MaximumCardinalityMatching.SINK_NODE] = dict(), dict()
         for source_node in G.get_left_nodeset():  # for every node in the left nodeset
-            if source_node.get_name() not in matched_source_node_names:  # if the node is unmatched
-                # connect the source node to the unmatched node using a dummy edge
+            if source_node.get_name() not in matched_source_node_names:  # if the node is exposed
+                # connect the source node to the exposed node using a dummy edge
                 G_dict[
                     MaximumCardinalityMatching.SOURCE_NODE
                 ][
                     source_node.get_name()
                 ] = \
-                    MaximumCardinalityMatching.DUMMY_EDGE_WEIGHT
+                    AssignmentProblem.DUMMY_EDGE_WEIGHT
 
         for terminal_node in G.get_right_nodeset():  # for every node in the right nodeset
-            if terminal_node.get_name() not in matched_terminal_node_names:  # if the node is unmatched
+            if terminal_node.get_name() not in matched_terminal_node_names:  # if the node is exposed
                 # connect the terminal node to the sink node using a dummy edge
                 G_dict[
                     terminal_node.get_name()
                 ][
                     MaximumCardinalityMatching.SINK_NODE
                 ] = \
-                    MaximumCardinalityMatching.DUMMY_EDGE_WEIGHT
+                    AssignmentProblem.DUMMY_EDGE_WEIGHT
 
         return G_dict  # return the modified graph in dictionary form
-
-    @staticmethod
-    def __postprocess_augmenting_path(augmenting_path):
-        """
-        Given an augmenting path represented as a tuple of pairs where each pair consists of source node
-        and terminal node names in that order, undoes the reversal of every odd-indexed edge executed prior
-        to computing the augmenting path
-        """
-        return \
-            tuple(
-                (
-                    tuple(
-                        (
-                            terminal_node,
-                            source_node
-                        )  # undo the reversal if the index is odd
-                    ) if list(augmenting_path).index(tuple((source_node, terminal_node))) % 2
-
-                    else tuple(
-                        (
-                            source_node,
-                            terminal_node
-                        )  # maintain original orientation otherwise
-                    )
-
-                    # continue for every pair of source and terminal nodes
-                    for source_node, terminal_node in augmenting_path
-                )
-            )
-
-    @staticmethod
-    def __update_matched_attributes(source_node, terminal_node, edge):
-        """
-        Given a source node, a terminal node and the edge connecting them, sets the matching attribute
-        of all three graph elements to True
-        """
-        # set the matching attribute to true
-        source_node.set_attribute_value(MaximumCardinalityMatching.MATCHING_ATTRIBUTE, True)
-        terminal_node.set_attribute_value(MaximumCardinalityMatching.MATCHING_ATTRIBUTE, True)
-        edge.set_attribute_value(MaximumCardinalityMatching.MATCHING_ATTRIBUTE, True)
 

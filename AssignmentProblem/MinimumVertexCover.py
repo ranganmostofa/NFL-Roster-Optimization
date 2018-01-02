@@ -1,4 +1,4 @@
-from Preprocessing import Preprocessing
+from AssignmentProblem import AssignmentProblem
 from DepthFirstTraversal import DepthFirstTraversal
 
 
@@ -17,13 +17,13 @@ class MinimumVertexCover:
         L = set()  # initialize an empty set
 
         # reverse the direction of the edges that constitute the input maximum matching
-        G_prime = Preprocessing.modify_graph(G, maximum_matching, Preprocessing.reverse_matched_directed_edge)
+        G_prime = AssignmentProblem.modify_graph(G, maximum_matching, AssignmentProblem.reverse_matched_directed_edge)
 
         # obtain the list of matched nodes in the left nodeset
         matched_left_node_names = {left_node_name for left_node_name, right_node_name in maximum_matching}
 
         for node in G_prime.get_left_nodeset():  # for every node in the left nodeset
-            if node.get_name() not in matched_left_node_names:  # if the node is free/unmatched
+            if node.get_name() not in matched_left_node_names:  # if the node is exposed/unmatched
                 # perform depth-first traversal on the input graph
                 G_traversed = DepthFirstTraversal.apply(G_prime, node)
                 L = MinimumVertexCover.__update_L(G_traversed, L)  # update the set, L, based on the visited nodes
