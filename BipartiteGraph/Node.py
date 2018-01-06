@@ -22,8 +22,8 @@ class Node:
         return \
             "Node Name: " + str(self.name) + "\n" + \
             "Node Attributes: " + str(self.attributes) + "\n" + \
-            "Outgoing Edges: " + str(self.outgoing_edges) + "\n" + \
-            "Incoming Edges: " + str(self.incoming_edges) + "\n"
+            "Outgoing Edges: " + "\n".join([edge.__str__() for edge in self.outgoing_edges]) + "\n" + \
+            "Incoming Edges: " + "\n".join([edge.__str__() for edge in self.incoming_edges]) + "\n"
 
     def __hash__(self):
         """
@@ -129,13 +129,13 @@ class Node:
 
     def set_name(self, name):
         """
-        Given a name, sets the input as the current name of the node
+        Given a name, sets the current name of the node as the input
         """
         self.name = name  # overwrite the existing name with the input name
 
     def set_attributes(self, attributes):
         """
-        Given a registry of attributes, sets the input as the registry of current attributes of the node
+        Given a registry of attributes, sets the registry of current attributes of the node as the input
         """
         self.attributes = dict(attributes)  # overwrite the existing registry of attributes with the input attributes
 
@@ -148,13 +148,13 @@ class Node:
 
     def set_outgoing_edges(self, outgoing_edges):
         """
-        Given a set of outgoing edges, sets the input as the current set of outgoing edges
+        Given a set of outgoing edges, sets the current set of outgoing edges as the input
         """
         self.outgoing_edges = set(outgoing_edges)  # overwrite the existing set of outgoing edges with the input set
 
     def set_incoming_edges(self, incoming_edges):
         """
-        Given a set of incoming edges, sets the input as the current set of incoming edges
+        Given a set of incoming edges, sets the current set of incoming edges as the input
         """
         self.incoming_edges = set(incoming_edges)  # overwrite the existing set of incoming edges with the input set
 

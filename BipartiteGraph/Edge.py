@@ -21,8 +21,8 @@ class Edge:
         return \
             "Edge Weight: " + str(self.weight) + "\n" + \
             "Edge Attributes: " + str(self.attributes) + "\n" + \
-            "Source Node: \n" + str(self.source_node) + "\n" + \
-            "Terminal Node: \n" + str(self.terminal_node) + "\n"
+            "Source Node: \n" + str(self.source_node.get_name()) + "\n" + \
+            "Terminal Node: \n" + str(self.terminal_node.get_name()) + "\n"
 
     def __hash__(self):
         """
@@ -88,13 +88,13 @@ class Edge:
 
     def set_weight(self, weight):
         """
-        Given a weight value, sets the input as the current weight value of the edge
+        Given a weight value, sets the current weight value of the edge as the input
         """
         self.weight = weight  # overwrite the existing weight with the input weight value
 
     def set_attributes(self, attributes):
         """
-        Given a registry of attributes, sets the input as the registry of current attributes of the edge
+        Given a registry of attributes, sets the registry of current attributes of the edge as the input
         """
         self.attributes = dict(attributes)  # overwrite the existing registry of attributes with the input attributes
 
@@ -107,13 +107,13 @@ class Edge:
 
     def set_source_node(self, source_node):
         """
-        Given a source Node object, sets the input as the current source node of the edge
+        Given a source Node object, sets the current source node of the edge as the input
         """
         self.source_node = source_node  # overwrite the existing source node with the input source Node object
 
     def set_terminal_node(self, terminal_node):
         """
-        Given a terminal Node object, sets the input as the current terminal node of the edge
+        Given a terminal Node object, sets the current terminal node of the edge as the input
         """
         self.terminal_node = terminal_node  # overwrite the existing terminal node with the input terminal Node object
 

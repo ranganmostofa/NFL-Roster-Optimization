@@ -22,8 +22,8 @@ class BipartiteGraph:
         """
         # string representation includes values of all inner fields
         return \
-            "Left Nodeset: " + str(self.left_nodeset) + "\n" + \
-            "Right Nodeset: " + str(self.right_nodeset) + "\n"
+            "Left Nodeset: " + "\n".join([node.__str__() for node in self.left_nodeset]) + "\n" + \
+            "Right Nodeset: " + "\n".join([node.__str__() for node in self.right_nodeset]) + "\n"
 
     def __hash__(self):
         """
@@ -133,16 +133,15 @@ class BipartiteGraph:
 
     def get_edges(self):
         """
-        Returns a set of the edges in the bipartite graph
+        Returns a list of the edges in the bipartite graph
         """
-        return set(
-                [edge for node in self.left_nodeset for edge in node.get_outgoing_edges()] +
-                [edge for node in self.left_nodeset for edge in node.get_incoming_edges()]
-        )
+        return \
+            [edge for node in self.left_nodeset for edge in node.get_outgoing_edges()] + \
+            [edge for node in self.left_nodeset for edge in node.get_incoming_edges()]
 
     def set_left_nodeset(self, left_nodeset):
         """
-        Given a set of nodes, sets the input as the current left nodeset
+        Given a set of nodes, sets the current left nodeset as the input
         """
         self.left_nodeset = set(left_nodeset)  # overwrite the existing left nodeset with the input left nodeset
 
@@ -150,7 +149,7 @@ class BipartiteGraph:
 
     def set_right_nodeset(self, right_nodeset):
         """
-        Given a set of nodes, sets the input as the current right nodeset
+        Given a set of nodes, sets the current right nodeset as the input
         """
         self.right_nodeset = set(right_nodeset)  # overwrite the existing right nodeset with the input right nodeset
 
@@ -256,17 +255,43 @@ class BipartiteGraph:
             len({node.get_name() for node in self.get_left_nodeset().union(self.get_right_nodeset())}) \
             != len(self.get_left_nodeset()) + len(self.get_right_nodeset())
 
+    def __has_multiple_edges(self):
+        """
+        Returns True if the graph has multiple edges originating from and leading to the same node and False
+        otherwise
+        """
+        return \
+            len(
+                list(
+                    [
+                        tuple((edge.get_source_node().get_name(), edge.get_terminal_node().get_name()))
+                        for edge in self.get_edges()
+                    ]  # the length of the list which allows duplicates...
+                )
+            ) != \
+            len(
+                set(
+                    {
+                        tuple((edge.get_source_node().get_name(), edge.get_terminal_node().get_name()))
+                        for edge in self.get_edges()
+                    }  # ...should equal the length of the set that does not allow duplicates
+                )
+            )  # return True if the two data structures are equal in size and False otherwise
+
     def __check_validity(self):
         """
         Throws an exception if:
 
         (1) Graph is not bipartite
         (2) Nodes have conflicting names
+        (3) Multiple edges exist
 
-        Method is called after every mutation
+        Method should be called after every mutation
         """
         if not self.__is_bipartite():  # if the graph is not bipartite
             raise Exception("Error: Graph is not bipartite")  # raise an exception
         if self.__has_conflicting_node_names():  # if the graph has nodes with conflicting node names
             raise Exception("Error: Nodes have conflicting names")  # raise an exception
+        if self.__has_multiple_edges():  # if the graph has nodes with multiple edges
+            raise Exception("Error: Multiple edges exist")  # raise an exception
 
